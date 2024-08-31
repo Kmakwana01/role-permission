@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\RoleMiddleware;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,14 +20,27 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth','verified',RoleMiddleware::class.':user'])->group(function(){
-    Route::get('/userDashboard',function(){
+    Route::get('/userRoute',function(){
         return 'userDashboard';
     });
 });
 
 Route::middleware(['auth','verified',RoleMiddleware::class.':admin'])->group(function(){
-    Route::get('/userDashboard',function(){
-        return 'userDashboard';
+    Route::get('/adminRoute',function(){
+        return 'adminDashboard';
+    });
+});
+
+Route::middleware(['auth', 'verified'])->group(function() {
+    Route::get('/home', function () {
+        // Check user role
+        if (Auth::user()->role === 'admin') {
+            return 'admin';
+        } elseif (Auth::user()->role === 'user') {
+            return 'user';
+        } else {
+            abort(403); 
+        }
     });
 });
 
